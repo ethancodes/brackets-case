@@ -1,3 +1,7 @@
+                                                                     
+                                                                     
+                                                                     
+                                             
 /** Simple extension that let's you UPPERCASE, lowercase, or Proper Case the selected text */
 
 define(function (require, exports, module) {
@@ -45,6 +49,28 @@ define(function (require, exports, module) {
       });
     }
 
+    /* 
+     * To Title Case 2.0.1 – http://individed.com/code/to-title-case/
+     * Copyright © 2008–2012 David Gouch. Licensed under the MIT License. 
+     */
+    
+    String.prototype.toTitleCase = function () {
+      var smallWords = /^(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|vs?\.?|via)$/i;
+    
+      return this.replace(/([^\W_]+[^\s-]*) */g, function (match, p1, index, title) {
+        if (index > 0 && index + p1.length !== title.length &&
+          p1.search(smallWords) > -1 && title.charAt(index - 2) !== ":" && 
+          title.charAt(index - 1).search(/[^\s-]/) < 0) {
+          return match.toLowerCase();
+        }
+    
+        if (p1.substr(1).search(/[A-Z]|\../) > -1) {
+          return match;
+        }
+    
+        return match.charAt(0).toUpperCase() + match.substr(1);
+      });
+    };
     
     function caseUpper() {
         _replaceActiveSelection(_getSelectedText().toUpperCase());
@@ -54,8 +80,13 @@ define(function (require, exports, module) {
         _replaceActiveSelection(_getSelectedText().toLowerCase());
     }
 
-    function caseProper() {
-        _replaceActiveSelection(ucwords(_getSelectedText()));
+    function caseTitle() {
+        _replaceActiveSelection(_getSelectedText().toLowerCase().toTitleCase());
+    }
+
+
+    function caseCamel() {
+        _replaceActiveSelection(ucwords(_getSelectedText().toLowerCase()));
     }
     
     
@@ -64,15 +95,17 @@ define(function (require, exports, module) {
     CommandManager.register("UPPERCASE", MY_COMMANDU_ID, caseUpper);
     var MY_COMMANDL_ID = "case.lowercase";   // package-style naming to avoid collisions
     CommandManager.register("lowercase", MY_COMMANDL_ID, caseLower);
-    var MY_COMMANDP_ID = "case.propercase";   // package-style naming to avoid collisions
-    CommandManager.register("Proper Case", MY_COMMANDP_ID, caseProper);
+    var MY_COMMANDT_ID = "case.titlecase";   // package-style naming to avoid collisions
+    CommandManager.register("Title Case", MY_COMMANDT_ID, caseTitle);
+    var MY_COMMANDC_ID = "case.camelcase";   // package-style naming to avoid collisions
+    CommandManager.register("Camel Case", MY_COMMANDC_ID, caseCamel);
 
     // Then create a menu item bound to the command
     // The label of the menu item is the name we gave the command (see above)
     var menu = Menus.getMenu(Menus.AppMenuBar.EDIT_MENU);
-//    menu.addMenuItem(MY_COMMAND_ID);  
     menu.addMenuItem(MY_COMMANDU_ID);
     menu.addMenuItem(MY_COMMANDL_ID);
-    menu.addMenuItem(MY_COMMANDP_ID);
+    menu.addMenuItem(MY_COMMANDT_ID);
+    menu.addMenuItem(MY_COMMANDC_ID);
     
 });
